@@ -189,28 +189,28 @@ export const getAttendanceModel = (month,employee_id,sessionData) => {
 
       pool.execute(
         `SELECT 
-            ar.id as id,
-            DATE_FORMAT(date,'%Y-%m-%d') as date,
-            u.employee_id,
-            employee_name,
-            magasin,
-            entree_time,
-            status,
-            start_break,
-            finish_break,
-            exit_time,
-            store_entree_time,
-            store_exit_time,
-            store_pause_periode,
-            punch_count
-         FROM attendance_records ar
-         JOIN users u
-           ON ar.employee_id = u.employee_id
-         JOIN stores s
-           ON ar.magasin = s.att
-         WHERE u.employee_id = ?
-         AND DATE_FORMAT(date,'%Y-%m') = ?
-         ORDER BY date`,
+      ar.id as id,
+      DATE_FORMAT(date,'%Y-%m-%d') as date,
+      u.employee_id,
+      employee_name,
+      magasin,
+      entree_time,
+      status,
+      start_break,
+      finish_break,
+      exit_time,
+      store_entree_time,
+      store_exit_time,
+      store_pause_periode,
+      punch_count
+      FROM attendance_records ar
+      JOIN users u
+      ON ar.employee_id COLLATE utf8mb4_unicode_ci = u.employee_id COLLATE utf8mb4_unicode_ci
+      LEFT JOIN stores s
+      ON ar.magasin COLLATE utf8mb4_unicode_ci = s.att COLLATE utf8mb4_unicode_ci
+      WHERE u.employee_id = ?
+      AND DATE_FORMAT(date,'%Y-%m') = ?
+      ORDER BY date`,
         [empId, month]
       )
       .then(([records]) => {
