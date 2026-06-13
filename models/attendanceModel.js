@@ -120,7 +120,7 @@ export const getAllMonthsModel = () => {
 
 // ── GET /api/attendance  (one employee, one month) ───────────────────────────
 
-export const getAttendanceModel = (month, employee_id, sessionData) => {
+export const getAttendanceModel = (month,employee_id,sessionData) => {
 
   return new Promise((resolve, reject) => {
 
@@ -137,11 +137,11 @@ export const getAttendanceModel = (month, employee_id, sessionData) => {
 
     // récupérer employee id
 
-    const empId = employee_id?.trim() || sessionData.employeeId;
+    const empId =employee_id?.trim() || sessionData.employeeId;
 
     // vérifier permissions
 
-    if (employee_id && !['hr', 'admin', 'superadmin'].includes(sessionData.role)) {
+    if (employee_id &&!['hr', 'admin', 'superadmin'].includes(sessionData.role)) {
 
       return reject({
         success: false,
@@ -152,43 +152,43 @@ export const getAttendanceModel = (month, employee_id, sessionData) => {
 
     // vérifier mois gelé
 
-    pool.execute(`SELECT is_frozen FROM frozen_months WHERE employee_id = ? AND month = ?`, [empId, month])
-      .then(([frozenRows]) => {
+    pool.execute(`SELECT is_frozen FROM frozen_months WHERE employee_id = ? AND month = ?`, [empId, month] )
+    .then(([frozenRows]) => {
 
-        const isFrozen = frozenRows.length > 0;
+      const isFrozen = frozenRows.length > 0;
 
-        // récupérer tous les enregistrements de présence de l’employé
-        // pour le mois sélectionné
-        //
-        // attendance_records  → contient les pointages journaliers
-        // users               → permet de récupérer les informations employé
-        // stores              → permet de récupérer les paramètres magasin
-        //
-        // DATE_FORMAT(date,'%Y-%m')
-        // sert à filtrer seulement le mois demandé
-        //
-        // ORDER BY date
-        // trie les résultats du plus ancien jour vers le plus récent
-        //
-        // les données récupérées incluent :
-        // - date
-        // - statut de présence
-        // - heure d’entrée
-        // - heure de sortie
-        // - pauses
-        // - magasin
-        // - nombre de pointages
-        //
-        // exemple :
-        // empId = 1005
-        // month = 2026-05
-        //
-        // résultat :
-        // tous les pointages de l’employé 1005
-        // durant le mois 05/2026
+      // récupérer tous les enregistrements de présence de l’employé
+      // pour le mois sélectionné
+      //
+      // attendance_records  → contient les pointages journaliers
+      // users               → permet de récupérer les informations employé
+      // stores              → permet de récupérer les paramètres magasin
+      //
+      // DATE_FORMAT(date,'%Y-%m')
+      // sert à filtrer seulement le mois demandé
+      //
+      // ORDER BY date
+      // trie les résultats du plus ancien jour vers le plus récent
+      //
+      // les données récupérées incluent :
+      // - date
+      // - statut de présence
+      // - heure d’entrée
+      // - heure de sortie
+      // - pauses
+      // - magasin
+      // - nombre de pointages
+      //
+      // exemple :
+      // empId = 1005
+      // month = 2026-05
+      //
+      // résultat :
+      // tous les pointages de l’employé 1005
+      // durant le mois 05/2026
 
-        pool.execute(
-          `SELECT 
+      pool.execute(
+        `SELECT 
             ar.id as id,
             DATE_FORMAT(date,'%Y-%m-%d') as date,
             u.employee_id,
@@ -206,116 +206,104 @@ export const getAttendanceModel = (month, employee_id, sessionData) => {
          FROM attendance_records ar
          JOIN users u
            ON ar.employee_id = u.employee_id
-         // ✅ Après  
-LEFT JOIN stores s
-  ON ar.magasin = s.att
+         JOIN stores s
+           ON ar.magasin = s.att
          WHERE u.employee_id = ?
          AND DATE_FORMAT(date,'%Y-%m') = ?
          ORDER BY date`,
-          [empId, month]
-        )
-          .then(([records]) => {
+        [empId, month]
+      )
+      .then(([records]) => {
 
-            // récupérer nom employé
+        // récupérer nom employé
 
-            pool.execute(`SELECT full_name FROM users WHERE employee_id = ? LIMIT 1`, [empId])
-              .then(([empRows]) => {
+        pool.execute(`SELECT full_name FROM users WHERE employee_id = ? LIMIT 1`, [empId])
+        .then(([empRows]) => {
 
-                const byDate = {};
+          const byDate = {};
 
-                for (const r of records) {
+          for (const r of records) {
 
-                  const dateObj = r.date instanceof Date ? r.date : new Date(r.date);
-                  const dateKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
-                  byDate[dateKey] = r;
-                }
+            const dateObj = r.date instanceof Date ? r.date : new Date(r.date);
+            const dateKey = `${dateObj.getFullYear()}-${ String(dateObj.getMonth() + 1).padStart(2, '0') }-${ String(dateObj.getDate()).padStart(2, '0')}`;
+            byDate[dateKey] = r;
+          }
 
-                const [year, monthNum] = month.split('-');
-                const daysInMonth = new Date(+year, +monthNum, 0).getDate();
-                const allRecords = [];
+          const [year, monthNum] = month.split('-');
+          const daysInMonth = new Date(+year, +monthNum, 0).getDate();
+          const allRecords = [];
 
-                for (let d = 1; d <= daysInMonth; d++) {
+          for (let d = 1; d <= daysInMonth; d++) {
 
-                  const dateStr = `${year}-${monthNum}-${String(d).padStart(2, '0')}`;
-                  const dateObj = new Date(dateStr);
+            const dateStr = `${year}-${monthNum}-${String(d).padStart(2, '0')}`;
+            const dateObj = new Date(dateStr);
 
-                  const arabicDate = fullArabicDate(dateObj);
+            const arabicDate = fullArabicDate(dateObj);
 
-                  if (byDate[dateStr]) {
+            if (byDate[dateStr]) {
 
-                    allRecords.push({
-                      ...byDate[dateStr],
-                      day_name: arabicDate
-                    });
-
-                  } else {
-
-                    const status =
-                      dateObj.getDay() === 5
-                        ? 'Week-end'
-                        : 'Absence';
-
-                    allRecords.push({
-                      id: 0,
-                      employee_id: empId,
-                      employee_name: sessionData.fullName ?? '',
-                      date: dateStr,
-                      day_name: arabicDate,
-                      status,
-                      magasin: null,
-                      entree_time: null,
-                      start_break: null,
-                      finish_break: null,
-                      exit_time: null,
-                      punch_count: null,
-                      break_duration: null,
-                      work_time: null,
-                      late_absence: null,
-                      overtime: null,
-                      edit_count: 0,
-                      last_edited_by: null,
-                      last_edited_at: null,
-                      created_at: null,
-                    });
-
-                  }
-
-                }
-
-                return resolve({
-                  success: true,
-                  message: 'تم جلب البيانات بنجاح',
-                  data: {
-                    records: allRecords,
-                    employeeName:
-                      empRows[0]?.full_name ?? 'غير معروف',
-                    employeeId: empId,
-                    month,
-                    isFrozen,
-                  },
-                });
-
-              })
-
-              .catch(() => {
-
-                return reject({
-                  success: false,
-                  message: 'خطأ أثناء جلب بيانات الموظف'
-                });
-
+              allRecords.push({
+                ...byDate[dateStr],
+                day_name: arabicDate
               });
 
-          })
+            } else {
 
-          .catch((err) => {
+              const status =
+                dateObj.getDay() === 5
+                  ? 'Week-end'
+                  : 'Absence';
 
-            return reject({
-              success: false,
-              message: err.message || 'خطأ في جلب بيانات الحضور'
-            });
+              allRecords.push({
+                id: 0,
+                employee_id: empId,
+                employee_name: sessionData.fullName ?? '',
+                date: dateStr,
+                day_name: arabicDate,
+                status,
+                magasin: null,
+                entree_time: null,
+                start_break: null,
+                finish_break: null,
+                exit_time: null,
+                punch_count: null,
+                break_duration: null,
+                work_time: null,
+                late_absence: null,
+                overtime: null,
+                edit_count: 0,
+                last_edited_by: null,
+                last_edited_at: null,
+                created_at: null,
+              });
 
+            }
+
+          }
+
+          return resolve({
+            success: true,
+            message: 'تم جلب البيانات بنجاح',
+            data: {
+              records: allRecords,
+              employeeName:
+                empRows[0]?.full_name ?? 'غير معروف',
+              employeeId: empId,
+              month,
+              isFrozen,
+            },
           });
+
+        })
+
+        .catch(() => {
+
+          return reject({
+            success: false,
+            message: 'خطأ أثناء جلب بيانات الموظف'
+          });
+
+        });
 
       })
 
@@ -323,10 +311,21 @@ LEFT JOIN stores s
 
         return reject({
           success: false,
-          message: err.message || 'خطأ في قاعدة البيانات'
+          message: err.message || 'خطأ في جلب بيانات الحضور'
         });
 
       });
+
+    })
+
+    .catch((err) => {
+
+      return reject({
+        success: false,
+        message: err.message || 'خطأ في قاعدة البيانات'
+      });
+
+    });
 
   });
 
