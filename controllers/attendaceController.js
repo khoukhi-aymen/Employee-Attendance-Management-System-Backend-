@@ -8,6 +8,11 @@ export const getMonthsController = (req, res) => {
   const empId = req.session.employeeId;
   const fullName = req.session.fullName;
 
+  // ✅ Ajoute ce log temporaire
+  console.log('Session:', req.session);
+  console.log('empId:', empId);
+  console.log('fullName:', fullName);
+
   attendanceModel.getMonthsModel(empId, fullName)
     .then(result => {
       res.json(result);
