@@ -191,7 +191,7 @@ export const getAttendanceModel = (month,employee_id,sessionData) => {
         `SELECT 
       ar.id as id,
       DATE_FORMAT(date,'%Y-%m-%d') as date,
-      u.employee_id,
+      CONVERT(u.employee_id USING utf8mb4) as employee_id,
       employee_name,
       magasin,
       entree_time,
@@ -205,10 +205,10 @@ export const getAttendanceModel = (month,employee_id,sessionData) => {
       punch_count
       FROM attendance_records ar
       JOIN users u
-      ON ar.employee_id COLLATE utf8mb4_unicode_ci = u.employee_id COLLATE utf8mb4_unicode_ci
+      ON CONVERT(ar.employee_id USING utf8mb4) = CONVERT(u.employee_id USING utf8mb4)
       LEFT JOIN stores s
-      ON ar.magasin COLLATE utf8mb4_unicode_ci = s.att COLLATE utf8mb4_unicode_ci
-      WHERE u.employee_id = ?
+      ON CONVERT(ar.magasin USING utf8mb4) = CONVERT(s.att USING utf8mb4)
+      WHERE CONVERT(u.employee_id USING utf8mb4) = CONVERT(? USING utf8mb4)
       AND DATE_FORMAT(date,'%Y-%m') = ?
       ORDER BY date`,
         [empId, month]
