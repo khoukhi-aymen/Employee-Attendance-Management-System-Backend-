@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 // ── Middleware ──────────────────────────────────────────────────────────────
 app.use(cors({
-  // ✅ Après
+  // Après
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
 }));
@@ -27,11 +27,13 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'change_this_secret',
   resave: false,
   saveUninitialized: false,
+  
+  // Après
   cookie: {
     httpOnly: true,
-    secure: false, // set true in production with HTTPS
-    maxAge: 3600 * 1000, // 1 hour
-    sameSite: 'lax',
+    secure: true,
+    maxAge: 3600 * 1000,
+    sameSite: 'none',
   },
 }));
 
