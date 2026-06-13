@@ -49,11 +49,12 @@ export const getAttendanceController = (req, res) => {
 
   attendanceModel.getAttendanceModel(month,employee_id,sessionData)
   .then(result => {
-    console.log(result)
+    console.log('RESULT:', JSON.stringify(result));
     res.json(result);
   })
 
   .catch(err => {
+    console.log('ERROR:', err);
     res.json(err);
   });
 
