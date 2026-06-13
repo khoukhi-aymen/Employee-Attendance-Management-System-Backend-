@@ -453,12 +453,11 @@ export const bulkCreateEmployeesModel = (body, req) => {
       });
 
     } catch (err) {
-
+      console.log('BULK ERROR:', err); // ✅ Ajoute cette ligne
       reject({
         success: false,
-        message: 'خطأ أثناء إضافة الموظفين'
+        message: err.message // ✅ Change ça aussi
       });
-
     }
 
   });
