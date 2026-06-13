@@ -27,7 +27,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'change_this_secret',
   resave: false,
   saveUninitialized: false,
-  
+  proxy: true, // ✅ Ajoute cette ligne pour Render
   // Après
   cookie: {
     httpOnly: true,
