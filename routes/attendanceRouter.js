@@ -362,7 +362,7 @@ function fullArabicDate(dateObj) {
 
 
 // ── GET /api/attendance/months  (own employee) ───────────────────────────────
-router.get('/months', requireLogin,attendanceController.getMonthsController);
+router.get('/months',attendanceController.getMonthsController);
 
 
 // ── GET /api/attendance/all-months  (HR / admin) ─────────────────────────────
