@@ -3,37 +3,16 @@ import * as attendanceModel from '../models/attendanceModel.js';
 
 // ── GET /api/attendance/months  (own employee) ───────────────────────────────
 
-// export const getMonthsController = (req, res) => {
-
-//   const empId = req.session.employeeId;
-//   const fullName = req.session.fullName;
-
-//   attendanceModel.getMonthsModel(empId, fullName)
-//     .then(result => {
-//       res.json(result);
-//     })
-//     .catch(err => {
-//       res.json(err);
-//     });
-
-// };
-
 export const getMonthsController = (req, res) => {
-
-  console.log("========== GET MONTHS ==========");
-  console.log("employeeId :", req.session.employeeId);
-  console.log("fullName   :", req.session.fullName);
 
   const empId = req.session.employeeId;
   const fullName = req.session.fullName;
 
   attendanceModel.getMonthsModel(empId, fullName)
     .then(result => {
-      console.log("RESULT :", result);
       res.json(result);
     })
     .catch(err => {
-      console.log("ERROR :", err);
       res.json(err);
     });
 
