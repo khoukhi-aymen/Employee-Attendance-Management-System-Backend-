@@ -73,18 +73,28 @@ export const loginModel = (username, password, req) => {
                 console.log(req.session);
 
                 // LOG SUCCESS
-                logAction(req, 'login_success', `تسجيل دخول ناجح - ${user.role}`);
-                
+                req.session.save((err) => {
 
-                resolve({
-                    success: true,
-                    message: 'تم تسجيل الدخول بنجاح',
-                    data: {
-                        role: user.role,
-                        fullName: user.full_name,
-                        employeeId: user.employee_id
-                    }
+                        if (err) {
+                            return reject({
+                            success: false,
+                            message: "حدث خطأ أثناء حفظ بيانات الجلسة"
+                        });
+                }
+
+                logAction(req, 'login_success', `تسجيل دخول ناجح - ${user.role}`);
+
+                return resolve({
+                            success: true,
+                            message: 'تم تسجيل الدخول بنجاح',
+                            data: {
+                                role: user.role,
+                                fullName: user.full_name,
+                                employeeId: user.employee_id
+                            }
                 });
+
+            });
 
             })
 
