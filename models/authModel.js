@@ -68,8 +68,13 @@ export const loginModel = (username, password, req) => {
                 req.session.role = user.role;
                 req.session.lastActivity = Date.now();
 
+                console.log("LOGIN");
+                console.log(user);
+                console.log(req.session);
+
                 // LOG SUCCESS
                 logAction(req, 'login_success', `تسجيل دخول ناجح - ${user.role}`);
+                
 
                 resolve({
                     success: true,
