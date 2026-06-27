@@ -13,6 +13,8 @@ export function isLoggedIn(req) {
 }
 
 export const requireLogin = (req, res, next) => {
+   console.log("===== SESSION =====");
+  console.log(req.session);
   if (!isLoggedIn(req)) {
     return res.json({ success: false, message: 'الرجاء تسجيل الدخول' });
   }
