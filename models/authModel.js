@@ -68,9 +68,9 @@ export const loginModel = (username, password, req) => {
                 req.session.role = user.role;
                 req.session.lastActivity = Date.now();
 
-                console.log("LOGIN");
-                console.log(user);
-                console.log(req.session);
+                //console.log("LOGIN");
+                //console.log(user);
+                //console.log(req.session);
 
                 // LOG SUCCESS
                 req.session.save((err) => {
